@@ -2,7 +2,7 @@ name: Keep Contribution Graph Green
 
 on:
   schedule:
-    # Todos los días a las 23:00 UTC
+    # Corre todos los días a las 23:00 UTC
     - cron: '0 23 * * *'
   workflow_dispatch:
 
@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Add temporary line
         run: echo "<!-- keep-green $(date -u) -->" >> README.md
@@ -23,12 +26,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
           git commit -m "chore: add keep-green marker" || echo "Nada que commitear"
-
-      - name: Push addition
-        uses: ad-m/github-push-action@v0.6
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          git push origin main
 
       - name: Remove temporary line
         run: sed -i '$d' README.md
@@ -37,9 +35,4 @@ jobs:
         run: |
           git add README.md
           git commit -m "chore: remove keep-green marker" || echo "Nada que commitear"
-
-      - name: Push removal
-        uses: ad-m/github-push-action@v0.6
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          git push origin main
